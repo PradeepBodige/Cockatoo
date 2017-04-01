@@ -1,0 +1,35 @@
+<div class="row feed">
+  	<div class="col-md-4">
+      <div ng-hide="currentUser">
+        		<h4>Login:</h4>
+        		<br><br>
+        		<input type="text" size="30" placeholder="User Name" ng-model="username">
+        		<br><br>
+        		<input type="password" size="30" placeholder="Password" ng-model="password">
+        		<br><br>
+            <br><br>
+            <button type="button" ng-click="signin()">Sign In</button>
+        		<a href="#!/signup">Not a member? Signup</a>
+      </div>
+      <div ng-show="currentUser">
+        Hello, {{currentUser}}
+        <br><br>
+        <a href ng-click="logout()">Logout</a>
+      </div>
+  	</div>
+
+  	<div class="col-md-8" ng-show="currentUser">
+  		<div class="new-chirp">
+  		<input class="form-control" ng-model="newChirp" type="text" placeholder="what's on  your mind?">
+  		<button class="btn btn-info" ng-click="postNewChirp()" type="button">Chirp</button>
+  		</div>
+  		<h3 ng-repeat="chirp in chirps track by $index">
+  		<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+  		{{chirp.text}}
+  		<a href ng-click="removeChirps(chirp)"><span id="trash" class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+      <br>
+      <small>{{chirp.username}}</small>
+  		</h3>
+
+
+  	</div>

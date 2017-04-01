@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html ng-app="cockatoo">
+<head>
+	<title>Mitens</title>
+	<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="CSS/style.css">
+	<script type="text/javascript" src="angular.min.js"></script>
+	<script type="text/javascript" src="angular-route.js"></script>
+	<script type="text/javascript" src="angular-cookies.js"></script>
+	
+	
+	<script type="text/javascript">
+ "use strict"; 
+	    var app =  angular.module('cockatoo',['ngRoute', 'ngCookies']);
+	    app.config(function($routeProvider, $locationProvider){
+	    	$routeProvider.when('/', {
+	    		templateUrl: 'home.html',
+	    		controller : 'HomeController',
+	    	});
+	    	$routeProvider.when('/signup',{
+	    		templateUrl: 'signup.html', 
+	    		controller : 'SignupController',
+	    		controllerAs: 'signup'
+	    	});
+	    });
+
+	    app.run(function($rootScope, $cookies){
+	    if ($cookies.get('token') && $cookies.get('currentUser')){    	
+	    	$rootScope.token = $cookies.get('token');
+	    		      $rootScope.currentUser = $cookies.get('currentUser');
+	    	}
+	    });
+
+	    app.controller('HomeController', function($rootScope, $scope, $http, $cookies){
+	    
+	    	$scope.postNewChirp = function(){
+	    		$http.post('/chirps', {newChirp: $scope.newChirp},{headers: {
+	    			   'authorization': $rootScope.token
+	    		}}).then(function(){
+	    			getChirps();
+	    			$scope.newChirp = '';
+	    		});
+	    	};
+
+	    	$scope.removeChirps = function(chirp){
+	    		$http.put('/chirps/remove', {chirp:chirp},
+	    			{headers: {
+	    			   'authorization': $rootScope.token
+	    		}}).then(function(){
+	    			getChirps();
+	    		
+	    		});
+	    	};
+
+	    	$scope.signin = function(){
+	    		$http.put('/users/signin', {username: $scope.username, password: $scope.password})
+	    		.then(function(res){
+	    		
+	    			$cookies.put('token', res.data.token);
+	    			$cookies.put('currentUser', $scope.username);
+	    			$rootScope.token = res.data.token;
+	    			$rootScope.currentUser = $scope.username;
+	    			alert('successfully signed in');
+	    		}, function(err){
+	    			alert('bad login credentials');
+	    		});
+	    	}
+
+	    	$scope.logout =function(){
+	    		$cookies.remove('token');
+	    			$cookies.put('currentUser');
+	    			$rootScope.token =null;
+	    			$rootScope.currentUser = null;
+	    	};
+
+        function getChirps(){
+		$http.get('/chirps').then(function(response){
+        
+        	$scope.chirps = response.data;
+
+        	
+		});
+	}
+	getChirps();
+		});
+
+		app.controller('SignupController', function($scope, $http){
+			$scope.submitSignup = function() {
+				var newUser = {
+					username: $scope.username,
+					password: $scope.password
+				};
+				$http.post('/users', newUser).then(function(){
+					alert('sucess');
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+  	<h1 class="page-title">COCKATOO</h1>
+  	<div ng-view></div>
+</body>
+</html>
